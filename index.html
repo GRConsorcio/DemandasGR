@@ -24,6 +24,19 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
 /* AUTH */
 #auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
   background:radial-gradient(ellipse at 50% 0%,rgba(212,175,55,0.1) 0%,transparent 55%),var(--bg);padding:1rem;}
+
+/* LOGIN LOADING OVERLAY */
+#login-loading{position:fixed;inset:0;background:rgba(10,10,10,0.92);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;backdrop-filter:blur(6px);}
+#login-loading.show{display:flex;}
+.ll-spinner{width:48px;height:48px;border:3px solid rgba(212,175,55,0.15);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
+.ll-text{font-family:"Cinzel",serif;font-size:0.85rem;color:var(--gold2);letter-spacing:0.12em;}
+
+/* SOUND TOGGLE */
+.sound-toggle{display:flex;align-items:center;gap:7px;padding:0.3rem 0.8rem;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted2);font-family:"Inter",sans-serif;font-size:0.76rem;cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+.sound-toggle:hover{border-color:var(--border2);color:var(--text);}
+.sound-toggle.active{border-color:var(--gold3);color:var(--gold2);background:var(--gold-glow);}
+.sound-toggle-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);transition:background 0.2s;}
+.sound-toggle.active .sound-toggle-dot{background:var(--gold2);}
 .auth-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;}
 .auth-header{background:linear-gradient(160deg,#111 0%,#1c1500 100%);border-bottom:1px solid var(--border2);padding:2rem 2rem 1.5rem;text-align:center;}
 .auth-logo{width:88px;height:88px;object-fit:contain;margin:0 auto 0.9rem;display:block;filter:drop-shadow(0 0 14px rgba(212,175,55,0.45));}
@@ -276,6 +289,12 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
 <body>
 
 <!-- AUTH -->
+<!-- LOGIN LOADING OVERLAY -->
+<div id="login-loading">
+  <div class="ll-spinner"></div>
+  <div class="ll-text">Autenticando...</div>
+</div>
+
 <div id="auth-screen">
   <div class="auth-card">
     <div class="auth-header">
@@ -363,7 +382,11 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
           <div><div class="tb-title" id="view-title">Dashboard</div><div class="tb-sub" id="view-sub">Visão geral dos chamados</div></div>
         </div>
         <div class="topbar-r">
-          <button class="btn-new" onclick="openNewModal()">
+          <button class="sound-toggle" id="sound-toggle-btn" onclick="toggleSound()" title="Notificação sonora">
+          <div class="sound-toggle-dot"></div>
+          <span id="sound-toggle-label">Som: Off</span>
+        </button>
+        <button class="btn-new" onclick="openNewModal()">
             <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke-width="3" stroke-linecap="round"/></svg>
             <span>Novo Chamado</span>
           </button>
@@ -622,8 +645,13 @@ window.doLogin=async()=>{
   const email=document.getElementById("login-email").value.trim();
   const pass=document.getElementById("login-password").value;
   document.getElementById("auth-error").textContent="";
+  if(!email||!pass){document.getElementById("auth-error").textContent="Preencha e-mail e senha.";return;}
+  const ll=document.getElementById("login-loading");
+  ll.classList.add("show");
   try{await signInWithEmailAndPassword(auth,email,pass);}
-  catch(e){const m={"auth/invalid-credential":"E-mail ou senha incorretos.","auth/user-not-found":"Usuário não encontrado.","auth/wrong-password":"Senha incorreta.","auth/too-many-requests":"Muitas tentativas. Aguarde."};
+  catch(e){
+    ll.classList.remove("show");
+    const m={"auth/invalid-credential":"E-mail ou senha incorretos.","auth/user-not-found":"Usuário não encontrado.","auth/wrong-password":"Senha incorreta.","auth/too-many-requests":"Muitas tentativas. Aguarde.","auth/invalid-email":"E-mail inválido."};
     document.getElementById("auth-error").textContent=m[e.code]||"Erro ao entrar.";}
 };
 window.doRegister=async()=>{
@@ -644,6 +672,7 @@ window.doRegister=async()=>{
 window.doLogout=async()=>{await signOut(auth);};
 
 onAuthStateChanged(auth,async user=>{
+  document.getElementById("login-loading").classList.remove("show");
   if(user){
     cu=user;
     const snap=await getDoc(doc(db,"users",user.uid));
@@ -692,6 +721,7 @@ function loadTickets(){
         const isMyTicket=t.userId===cu?.uid;
         showNotifBanner(t,isMyTicket);
         sendBrowserNotif(t,isMyTicket);
+        playNotifSound();
       }
     });
     tickets=snap.docs.map(d=>({id:d.id,...d.data()}));
@@ -1008,6 +1038,43 @@ function requestNotifPermission(){
   }
 }
 
+// ─── SOUND NOTIFICATIONS ──────────────────────────────────────────────────────
+let soundEnabled=false;
+
+function playNotifSound(){
+  if(!soundEnabled)return;
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    // Bell-like chime: two notes
+    const times=[[0,880,0.18],[0.18,660,0.22]];
+    times.forEach(([when,freq,dur])=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type="sine";osc.frequency.setValueAtTime(freq,ctx.currentTime+when);
+      gain.gain.setValueAtTime(0,ctx.currentTime+when);
+      gain.gain.linearRampToValueAtTime(0.28,ctx.currentTime+when+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+when+dur);
+      osc.start(ctx.currentTime+when);osc.stop(ctx.currentTime+when+dur);
+    });
+  }catch(e){}
+}
+
+window.toggleSound=()=>{
+  soundEnabled=!soundEnabled;
+  const btn=document.getElementById("sound-toggle-btn");
+  const lbl=document.getElementById("sound-toggle-label");
+  btn.classList.toggle("active",soundEnabled);
+  lbl.textContent=soundEnabled?"Som: On":"Som: Off";
+  if(soundEnabled){
+    // Play a test sound to confirm
+    playNotifSound();
+    showToast("🔔 Notificação sonora ativada!");
+  }else{
+    showToast("🔕 Notificação sonora desativada.");
+  }
+};
+
 // ─── EDIT PROFILE ────────────────────────────────────────────────────────────
 window.openEditProfile=()=>{
   document.getElementById("ep-name").value=cp?.name||"";
@@ -1046,6 +1113,7 @@ window.saveProfile=async()=>{
   }
 };
 
+window.handleFileSelect=async(e)=>{
   const files=[...e.target.files];
   for(const f of files)await uploadFile(f);
   e.target.value="";
