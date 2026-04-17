@@ -143,6 +143,7 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
 .loading{display:flex;align-items:center;justify-content:center;padding:2.5rem;gap:10px;color:var(--muted);font-size:0.84rem;}
 .spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg);}}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 .empty{text-align:center;padding:2.5rem;color:var(--muted);}
 .empty-ico{font-size:1.8rem;margin-bottom:0.5rem;}
 
@@ -439,6 +440,7 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
               <div class="irow"><span class="ikey">Total geral</span><span class="ival" id="p-s-total">0</span></div>
             </div>
           </div>
+          <button class="btn-gold" onclick="openEditProfile()" style="max-width:220px;margin:0 auto;display:block;padding:0.6rem 1.5rem;font-size:0.85rem;">✏️ Editar Perfil</button>
         </div>
       </div>
     </main>
@@ -455,10 +457,10 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="mbody">
       <div class="frow2c">
         <div class="fg2"><label>Departamento *</label>
-          <select id="new-dept"><option value="">Selecione...</option><option>TI</option><option>RH</option><option>Financeiro</option><option>Comercial</option><option>PÓS VENDA</option><option>Marketing</option><option>Jurídico</option><option>Administração</option></select>
+          <select id="new-dept"><option value="">Selecione...</option><option>TI</option><option>RH</option><option>Financeiro</option><option>Comercial</option><option>Operações</option><option>Marketing</option><option>Jurídico</option><option>Administração</option></select>
         </div>
         <div class="fg2"><label>Categoria *</label>
-          <select id="new-cat"><option value="">Selecione...</option><option>Computador</option><option>Chip / WhatsApp</option><option>Entrevistas</option><option>Rede / Internet</option><option>Acesso / Permissão</option><option>Caju</option><option>Campanhas</option><option>Convert +</option><option>Recarga</option><option>Outro</option></select>
+          <select id="new-cat"><option value="">Selecione...</option><option>Hardware</option><option>Software</option><option>Rede / Internet</option><option>Acesso / Permissão</option><option>Impressora</option><option>E-mail</option><option>Sistema interno</option><option>Solicitação de serviço</option><option>Outro</option></select>
         </div>
       </div>
       <div class="fg2"><label>Título do chamado *</label><input type="text" id="new-title" placeholder="Descreva brevemente o problema..."/></div>
@@ -527,7 +529,6 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
           <button class="sbtn" onclick="changeStatus('em andamento')">Em andamento</button>
           <button class="sbtn" onclick="changeStatus('aguardando')">Aguardando</button>
           <button class="sbtn" onclick="changeStatus('resolvido')">Resolvido</button>
-          <button class="sbtn" onclick="changeStatus('fechado')">Fechado</button>
         </div>
       </div>
 
@@ -551,11 +552,46 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
 
 <div id="toast"></div>
 
+<!-- NOTIFICATION BANNER -->
+<div id="notif-banner" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#1a1200,#2a1e00);border-bottom:2px solid var(--gold3);padding:0.6rem 1.4rem;display:none;align-items:center;gap:0.9rem;animation:slideDown 0.3s ease;">
+  <span style="font-size:1rem;">🔔</span>
+  <span id="notif-text" style="flex:1;font-size:0.83rem;color:var(--gold2)"></span>
+  <button onclick="document.getElementById('notif-banner').style.display='none'" style="background:transparent;border:1px solid var(--border2);border-radius:5px;color:var(--muted2);padding:2px 8px;cursor:pointer;font-size:0.75rem;">✕</button>
+</div>
+
+<!-- MODAL EDITAR PERFIL -->
+<div class="moverlay" id="modal-edit-profile">
+  <div class="modal" style="max-width:460px">
+    <div class="mhead">
+      <div class="mhead-l"><span>✏️</span><h3>Editar Perfil</h3></div>
+      <button class="mclose" onclick="closeModal('modal-edit-profile')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="fg2"><label>Nome completo *</label><input type="text" id="ep-name" placeholder="Seu nome..."/></div>
+      <div class="frow2c">
+        <div class="fg2"><label>Departamento *</label>
+          <select id="ep-dept"><option value="">Selecione...</option><option>TI</option><option>RH</option><option>Financeiro</option><option>Comercial</option><option>Operações</option><option>Marketing</option><option>Jurídico</option><option>Administração</option></select>
+        </div>
+        <div class="fg2"><label>Cargo</label><input type="text" id="ep-cargo" placeholder="Seu cargo..."/></div>
+      </div>
+      <hr class="sdiv" style="margin:0.5rem 0 1rem"/>
+      <div style="font-size:0.68rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;">Alterar senha (opcional)</div>
+      <div class="fg2"><label>Nova senha</label><input type="password" id="ep-pass" placeholder="Mínimo 6 caracteres..."/></div>
+      <div class="fg2"><label>Confirmar nova senha</label><input type="password" id="ep-pass2" placeholder="Repita a senha..."/></div>
+      <div id="ep-error" class="auth-err"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-cancel" onclick="closeModal('modal-edit-profile')">Cancelar</button>
+      <button class="btn-submit" onclick="saveProfile()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{getFirestore,collection,addDoc,doc,updateDoc,deleteDoc,query,orderBy,onSnapshot,serverTimestamp,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import{getStorage,ref,uploadBytes,getDownloadURL,deleteObject,listAll}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import{getStorage,ref,uploadBytes,getDownloadURL,deleteObject,listAll,getMetadata}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const app=initializeApp({apiKey:"AIzaSyAjcAgeRXZ83Xuq4-A5JzJy6U7ytBGwK-c",authDomain:"chamadosgr.firebaseapp.com",projectId:"chamadosgr",storageBucket:"chamadosgr.firebasestorage.app",messagingSenderId:"189388794024",appId:"1:189388794024:web:77cb54fcba7a7d7b3bba9d"});
 const auth=getAuth(app),db=getFirestore(app),storage=getStorage(app);
@@ -623,6 +659,7 @@ onAuthStateChanged(auth,async user=>{
 function showApp(){
   document.getElementById("auth-screen").style.display="none";
   document.getElementById("app-screen").style.display="block";
+  requestNotifPermission();
   const name=cp?.name||cu.email,dept=cp?.dept||"–",cargo=cp?.cargo||"–",i=ini(name);
   ["sb-av","tb-av","p-av"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=i;});
   document.getElementById("sb-name").textContent=name;
@@ -637,8 +674,26 @@ function showApp(){
 }
 
 function loadTickets(){
+  let firstLoad=true;
+  const knownIds=new Set();
   const q=query(collection(db,"tickets"),orderBy("createdAt","desc"));
   onSnapshot(q,snap=>{
+    if(firstLoad){
+      snap.docs.forEach(d=>knownIds.add(d.id));
+      firstLoad=false;
+      tickets=snap.docs.map(d=>({id:d.id,...d.data()}));
+      updateStats();updateBadges();renderTickets();
+      return;
+    }
+    snap.docChanges().forEach(change=>{
+      if(change.type==="added"&&!knownIds.has(change.doc.id)){
+        knownIds.add(change.doc.id);
+        const t={id:change.doc.id,...change.doc.data()};
+        const isMyTicket=t.userId===cu?.uid;
+        showNotifBanner(t,isMyTicket);
+        sendBrowserNotif(t,isMyTicket);
+      }
+    });
     tickets=snap.docs.map(d=>({id:d.id,...d.data()}));
     updateStats();updateBadges();renderTickets();
   });
@@ -781,16 +836,15 @@ window.viewTicket=id=>{
   // Delete button logic
   const isAdmin=cu?.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase();
   const isOwner=t.userId===cu?.uid;
-  const createdMs=t.createdAt?.toDate?t.createdAt.toDate().getTime():null;
-  const ageInDays=createdMs?Math.floor((Date.now()-createdMs)/86400000):null;
-  const canDelete=isAdmin||(isOwner&&ageInDays!==null&&ageInDays>=7);
+  const canDelete=isAdmin||isOwner;
   const delBtn=document.getElementById("btn-delete-ticket");
   delBtn.style.display=canDelete?"flex":"none";
   delBtn.className="btn-delete"+(isAdmin?" btn-delete-admin":"");
+  const createdMs=t.createdAt?.toDate?t.createdAt.toDate().getTime():null;
+  const ageInDays=createdMs?Math.floor((Date.now()-createdMs)/86400000):null;
   if(ageInDays!==null){
     const d=document.getElementById("vw-days");
-    if(!isOwner||ageInDays>=7||isAdmin)d.textContent=ageInDays===0?"Hoje":ageInDays===1?"1 dia":ageInDays+" dias";
-    else d.textContent=`Deletável em ${7-ageInDays}d`;
+    d.textContent=ageInDays===0?"Hoje":ageInDays===1?"1 dia":ageInDays+" dias";
     d.style.display="inline";
   }else{document.getElementById("vw-days").style.display="none";}
 
@@ -824,9 +878,7 @@ window.deleteTicket=async()=>{
   const t=tickets.find(x=>x.id===vTicketId);if(!t)return;
   const isAdmin=cu?.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase();
   const isOwner=t.userId===cu?.uid;
-  const createdMs=t.createdAt?.toDate?t.createdAt.toDate().getTime():null;
-  const ageInDays=createdMs?Math.floor((Date.now()-createdMs)/86400000):0;
-  if(!isAdmin&&(!isOwner||ageInDays<7)){showToast("Você não pode apagar este chamado.",false);return;}
+  if(!isAdmin&&!isOwner){showToast("Você não pode apagar este chamado.",false);return;}
   if(!confirm(`Apagar o chamado "${t.title}"? Esta ação não pode ser desfeita.`))return;
   try{
     // Delete all attachments from storage
@@ -879,7 +931,7 @@ window.loadAttachments=async(ticketId)=>{
     badge.textContent=res.items.length;
     const items=await Promise.all(res.items.map(async item=>{
       const url=await getDownloadURL(item);
-      const meta=await item.getMetadata?.().catch(()=>({size:0}));
+      const meta=await getMetadata(item).catch(()=>({size:0,name:item.name}));
       return{name:item.name,url,size:meta?.size||0,fullPath:item.fullPath};
     }));
     list.innerHTML=items.map(it=>{
@@ -910,19 +962,90 @@ window.deleteAttachment=async(fullPath,ticketId)=>{
 
 async function uploadFile(file){
   if(!vTicketId)return;
+  if(file.size>10*1024*1024){showToast("Arquivo muito grande. Máximo 10MB.",false);return;}
   const upEl=document.getElementById("attach-uploading");
   upEl.style.display="flex";
   try{
-    const path=`tickets/${vTicketId}/${Date.now()}_${file.name}`;
+    const safeName=file.name.replace(/[^a-zA-Z0-9._\-]/g,"_");
+    const path=`tickets/${vTicketId}/${Date.now()}_${safeName}`;
     const storageRef=ref(storage,path);
-    await uploadBytes(storageRef,file);
-    showToast("Arquivo enviado!");
+    const metadata={contentType:file.type||"application/octet-stream",customMetadata:{originalName:file.name,uploadedBy:cu?.uid||"unknown"}};
+    await uploadBytes(storageRef,file,metadata);
+    showToast("Arquivo enviado com sucesso!");
     loadAttachments(vTicketId);
-  }catch(e){showToast("Erro ao enviar arquivo.",false);}
+  }catch(e){
+    const msgs={"storage/unauthorized":"Sem permissão para enviar arquivos. Verifique as regras do Storage.","storage/canceled":"Upload cancelado.","storage/unknown":"Erro desconhecido no upload."};
+    showToast(msgs[e.code]||("Erro ao enviar: "+(e.message||e.code)),false);
+    console.error("Upload error:",e);
+  }
   upEl.style.display="none";
 }
 
-window.handleFileSelect=async(e)=>{
+// ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+function showNotifBanner(t,isMyTicket){
+  const banner=document.getElementById("notif-banner");
+  const text=document.getElementById("notif-text");
+  if(isMyTicket){
+    text.textContent=`✅ Seu chamado "${t.title}" foi aberto com sucesso!`;
+  }else{
+    text.textContent=`🆕 Novo chamado aberto: "${t.title}" — ${t.dept} · ${t.userName||"Usuário"}`;
+  }
+  banner.style.display="flex";
+  clearTimeout(banner._hideTimer);
+  banner._hideTimer=setTimeout(()=>{banner.style.display="none";},6000);
+}
+
+function sendBrowserNotif(t,isMyTicket){
+  if(Notification.permission!=="granted")return;
+  const title=isMyTicket?"Chamado aberto com sucesso!":"Novo chamado — GR Consórcio";
+  const body=isMyTicket?`"${t.title}" foi registrado.`:`"${t.title}" · ${t.dept} · ${t.userName||"Usuário"}`;
+  try{new Notification(title,{body,icon:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/512px-WhatsApp.svg.png"});}catch(e){}
+}
+
+function requestNotifPermission(){
+  if("Notification"in window&&Notification.permission==="default"){
+    Notification.requestPermission();
+  }
+}
+
+// ─── EDIT PROFILE ────────────────────────────────────────────────────────────
+window.openEditProfile=()=>{
+  document.getElementById("ep-name").value=cp?.name||"";
+  document.getElementById("ep-dept").value=cp?.dept||"";
+  document.getElementById("ep-cargo").value=cp?.cargo||"";
+  document.getElementById("ep-pass").value="";
+  document.getElementById("ep-pass2").value="";
+  document.getElementById("ep-error").textContent="";
+  document.getElementById("modal-edit-profile").classList.add("open");
+};
+
+window.saveProfile=async()=>{
+  const name=document.getElementById("ep-name").value.trim();
+  const dept=document.getElementById("ep-dept").value;
+  const cargo=document.getElementById("ep-cargo").value.trim();
+  const pass=document.getElementById("ep-pass").value;
+  const pass2=document.getElementById("ep-pass2").value;
+  const errEl=document.getElementById("ep-error");
+  errEl.textContent="";
+  if(!name||!dept){errEl.textContent="Nome e departamento são obrigatórios.";return;}
+  if(pass&&pass.length<6){errEl.textContent="Senha mínima de 6 caracteres.";return;}
+  if(pass&&pass!==pass2){errEl.textContent="As senhas não coincidem.";return;}
+  try{
+    await setDoc(doc(db,"users",cu.uid),{name,dept,cargo,email:cu.email,createdAt:cp?.createdAt||serverTimestamp()});
+    if(pass){
+      const{updatePassword}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+      await updatePassword(cu,pass);
+    }
+    cp={...cp,name,dept,cargo};
+    showApp();
+    closeModal("modal-edit-profile");
+    showToast("Perfil atualizado com sucesso!");
+  }catch(e){
+    if(e.code==="auth/requires-recent-login"){errEl.textContent="Para alterar a senha, faça login novamente.";}
+    else{errEl.textContent="Erro ao salvar: "+(e.message||e.code);}
+  }
+};
+
   const files=[...e.target.files];
   for(const f of files)await uploadFile(f);
   e.target.value="";
