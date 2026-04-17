@@ -211,6 +211,42 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
 #toast{position:fixed;bottom:1.2rem;right:1.2rem;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:0.7rem 1rem;font-size:0.83rem;color:var(--text);max-width:280px;transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:999;}
 #toast.show{transform:translateY(0);opacity:1;}
 
+/* DELETE BUTTON */
+.btn-delete{padding:0.3rem 0.75rem;border-radius:6px;border:1px solid rgba(248,113,113,0.3);background:transparent;color:var(--red);font-family:"Inter",sans-serif;font-size:0.74rem;cursor:pointer;transition:all 0.2s;}
+.btn-delete:hover{background:rgba(248,113,113,0.1);border-color:var(--red);}
+.btn-delete-admin{border-color:rgba(248,113,113,0.5);}
+
+/* MODAL TABS */
+.mtabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.mtab{padding:0.55rem 1rem;font-size:0.8rem;font-weight:500;color:var(--muted2);cursor:pointer;border:none;background:none;font-family:"Inter",sans-serif;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.18s;}
+.mtab:hover{color:var(--text);}
+.mtab.active{color:var(--gold2);border-bottom-color:var(--gold);}
+.mtab-content{display:none;}
+.mtab-content.active{display:block;}
+
+/* ATTACHMENTS */
+.attach-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:0.9rem;}
+.attach-zone:hover,.attach-zone.drag{border-color:var(--gold3);background:var(--gold-glow2);}
+.attach-ico{font-size:1.6rem;margin-bottom:0.4rem;}
+.attach-hint{font-size:0.78rem;color:var(--muted2);}
+.attach-hint b{color:var(--gold2);}
+.attach-list{display:flex;flex-direction:column;gap:0.5rem;}
+.attach-item{display:flex;align-items:center;gap:0.6rem;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:0.5rem 0.75rem;}
+.attach-ext{width:30px;height:30px;border-radius:5px;display:grid;place-items:center;font-size:0.62rem;font-weight:700;flex-shrink:0;text-transform:uppercase;}
+.attach-ext.pdf{background:rgba(248,113,113,0.15);color:#f87171;}
+.attach-ext.img{background:rgba(74,222,128,0.15);color:#4ade80;}
+.attach-ext.doc,.attach-ext.docx{background:rgba(96,165,250,0.15);color:#60a5fa;}
+.attach-ext.xls,.attach-ext.xlsx{background:rgba(74,222,128,0.15);color:#4ade80;}
+.attach-ext.other{background:rgba(212,175,55,0.15);color:var(--gold2);}
+.attach-name{flex:1;font-size:0.8rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.attach-size{font-size:0.7rem;color:var(--muted);flex-shrink:0;}
+.attach-dl{padding:0.2rem 0.5rem;background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted2);font-size:0.7rem;cursor:pointer;transition:all 0.15s;text-decoration:none;}
+.attach-dl:hover{border-color:var(--gold3);color:var(--gold2);}
+.attach-del{padding:0.2rem 0.45rem;background:transparent;border:1px solid transparent;border-radius:5px;color:var(--muted);font-size:0.8rem;cursor:pointer;transition:all 0.15s;}
+.attach-del:hover{color:var(--red);border-color:rgba(248,113,113,0.3);}
+.attach-uploading{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--muted2);padding:0.5rem 0;}
+.days-badge{font-size:0.65rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:2px 7px;border-radius:20px;margin-left:auto;}
+
 /* RESPONSIVE */
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:680px){
@@ -456,31 +492,58 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
           <div style="font-size:0.7rem;color:var(--muted2);font-family:'JetBrains Mono',monospace;margin-top:1px" id="vw-id">–</div>
         </div>
       </div>
-      <button class="mclose" onclick="closeModal('modal-view')">✕</button>
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <span class="days-badge" id="vw-days"></span>
+        <button class="btn-delete" id="btn-delete-ticket" onclick="deleteTicket()" style="display:none">🗑 Excluir</button>
+        <button class="mclose" onclick="closeModal('modal-view')">✕</button>
+      </div>
     </div>
-    <div class="mbody">
-      <div class="dgrid">
-        <div><div class="di-label">Departamento</div><div class="di-val" id="vd-dept">–</div></div>
-        <div><div class="di-label">Categoria</div><div class="di-val" id="vd-cat">–</div></div>
-        <div><div class="di-label">Urgência</div><div id="vd-urg">–</div></div>
-        <div><div class="di-label">Status</div><div id="vd-stat">–</div></div>
-        <div><div class="di-label">Solicitante</div><div class="di-val" id="vd-user">–</div></div>
-        <div><div class="di-label">Data / Hora</div><div class="di-val" id="vd-date" style="font-family:'JetBrains Mono',monospace;font-size:0.78rem">–</div></div>
+    <div class="mbody" style="padding-bottom:0.5rem">
+      <div class="mtabs">
+        <button class="mtab active" onclick="switchModalTab('details',this)">📋 Detalhes</button>
+        <button class="mtab" onclick="switchModalTab('attachments',this)">📎 Anexos <span id="attach-count-badge" style="font-size:0.65rem;background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:10px;margin-left:4px">0</span></button>
       </div>
-      <div class="dbox-label">Descrição</div>
-      <div class="dbox" id="vd-desc">–</div>
-      <div id="vd-extra-w">
-        <div class="dbox-label">Informações adicionais</div>
-        <div class="dbox" id="vd-extra" style="margin-bottom:0">–</div>
+
+      <!-- TAB: DETAILS -->
+      <div class="mtab-content active" id="tab-details">
+        <div class="dgrid">
+          <div><div class="di-label">Departamento</div><div class="di-val" id="vd-dept">–</div></div>
+          <div><div class="di-label">Categoria</div><div class="di-val" id="vd-cat">–</div></div>
+          <div><div class="di-label">Urgência</div><div id="vd-urg">–</div></div>
+          <div><div class="di-label">Status</div><div id="vd-stat">–</div></div>
+          <div><div class="di-label">Solicitante</div><div class="di-val" id="vd-user">–</div></div>
+          <div><div class="di-label">Data / Hora</div><div class="di-val" id="vd-date" style="font-family:'JetBrains Mono',monospace;font-size:0.78rem">–</div></div>
+        </div>
+        <div class="dbox-label">Descrição</div>
+        <div class="dbox" id="vd-desc">–</div>
+        <div id="vd-extra-w">
+          <div class="dbox-label">Informações adicionais</div>
+          <div class="dbox" id="vd-extra" style="margin-bottom:0.9rem">–</div>
+        </div>
+        <hr class="sdiv"/>
+        <div style="font-size:0.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:7px">Alterar status</div>
+        <div class="srow">
+          <button class="sbtn" onclick="changeStatus('aberto')">Aberto</button>
+          <button class="sbtn" onclick="changeStatus('em andamento')">Em andamento</button>
+          <button class="sbtn" onclick="changeStatus('aguardando')">Aguardando</button>
+          <button class="sbtn" onclick="changeStatus('resolvido')">Resolvido</button>
+          <button class="sbtn" onclick="changeStatus('fechado')">Fechado</button>
+        </div>
       </div>
-      <hr class="sdiv"/>
-      <div style="font-size:0.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:7px">Alterar status</div>
-      <div class="srow">
-        <button class="sbtn" onclick="changeStatus('aberto')">Aberto</button>
-        <button class="sbtn" onclick="changeStatus('em andamento')">Em andamento</button>
-        <button class="sbtn" onclick="changeStatus('aguardando')">Aguardando</button>
-        <button class="sbtn" onclick="changeStatus('resolvido')">Resolvido</button>
-        <button class="sbtn" onclick="changeStatus('fechado')">Fechado</button>
+
+      <!-- TAB: ATTACHMENTS -->
+      <div class="mtab-content" id="tab-attachments">
+        <div class="attach-zone" id="attach-drop-zone" onclick="document.getElementById('attach-file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <div class="attach-ico">📎</div>
+          <div class="attach-hint">Clique ou arraste arquivos aqui<br><b>PDF, imagens, Word, Excel</b> e outros</div>
+        </div>
+        <input type="file" id="attach-file-input" style="display:none" multiple accept="*/*" onchange="handleFileSelect(event)"/>
+        <div id="attach-uploading" class="attach-uploading" style="display:none">
+          <div class="spinner"></div> Enviando arquivo...
+        </div>
+        <div class="attach-list" id="attach-list">
+          <div style="text-align:center;padding:1rem;color:var(--muted);font-size:0.82rem" id="attach-empty">Nenhum anexo ainda</div>
+        </div>
       </div>
     </div>
   </div>
@@ -491,10 +554,12 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import{getFirestore,collection,addDoc,doc,updateDoc,query,orderBy,onSnapshot,serverTimestamp,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getFirestore,collection,addDoc,doc,updateDoc,deleteDoc,query,orderBy,onSnapshot,serverTimestamp,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getStorage,ref,uploadBytes,getDownloadURL,deleteObject,listAll}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const app=initializeApp({apiKey:"AIzaSyAjcAgeRXZ83Xuq4-A5JzJy6U7ytBGwK-c",authDomain:"chamadosgr.firebaseapp.com",projectId:"chamadosgr",storageBucket:"chamadosgr.firebasestorage.app",messagingSenderId:"189388794024",appId:"1:189388794024:web:77cb54fcba7a7d7b3bba9d"});
-const auth=getAuth(app),db=getFirestore(app);
+const auth=getAuth(app),db=getFirestore(app),storage=getStorage(app);
+const ADMIN_EMAIL="rafaelsilvamessias9@gmail.com";
 let cu=null,cp=null,tickets=[],cFilter="todos",cView="dashboard",vTicketId=null;
 const uOrd={critico:0,alto:1,medio:2,baixo:3};
 const uClr={critico:"#f87171",alto:"#fb923c",medio:"#fbbf24",baixo:"#4ade80"};
@@ -615,16 +680,24 @@ window.renderTickets=()=>{
   }
   document.getElementById("empty-tick").style.display="none";
   document.getElementById("tick-table").style.display="table";
-  document.getElementById("tick-body").innerHTML=src.map(t=>`
-    <tr>
+  document.getElementById("tick-body").innerHTML=src.map(t=>{
+    const isAdmin=cu?.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase();
+    const isOwner=t.userId===cu?.uid;
+    const createdMs=t.createdAt?.toDate?t.createdAt.toDate().getTime():null;
+    const ageInDays=createdMs?Math.floor((Date.now()-createdMs)/86400000):null;
+    const canDelete=isAdmin||(isOwner&&ageInDays!==null&&ageInDays>=7);
+    return`<tr>
       <td><span class="tid">${esc(t.ticketId||"–")}</span></td>
       <td><div class="t-title">${esc(t.title)}</div><div class="t-meta">${esc(t.category||"")} · ${esc(t.userName||"")}</div></td>
       <td style="font-size:0.78rem;color:var(--muted2)">${esc(t.dept)}</td>
       <td><span class="badge badge-${t.urgency}">${cap(t.urgency)}</span></td>
       <td><span class="badge badge-${(t.status||"aberto").replace(" ","")}">${cap(t.status||"aberto")}</span></td>
       <td style="font-size:0.73rem;font-family:'JetBrains Mono',monospace;color:var(--muted)">${fmt(t.createdAt)}</td>
-      <td><button class="btn-view" onclick="viewTicket('${t.id}')">Ver</button></td>
-    </tr>`).join("");
+      <td style="display:flex;gap:0.35rem;align-items:center">
+        <button class="btn-view" onclick="viewTicket('${t.id}')">Ver</button>
+      </td>
+    </tr>`;
+  }).join("");
 };
 
 window.setFilter=(f,el)=>{
@@ -704,6 +777,26 @@ window.viewTicket=id=>{
   document.getElementById("vd-extra").textContent=t.extra||"–";
   document.getElementById("vd-extra-w").style.display=t.extra?"block":"none";
   document.querySelectorAll(".sbtn").forEach(b=>b.classList.toggle("active-s",b.textContent.toLowerCase()===(t.status||"aberto")));
+
+  // Delete button logic
+  const isAdmin=cu?.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase();
+  const isOwner=t.userId===cu?.uid;
+  const createdMs=t.createdAt?.toDate?t.createdAt.toDate().getTime():null;
+  const ageInDays=createdMs?Math.floor((Date.now()-createdMs)/86400000):null;
+  const canDelete=isAdmin||(isOwner&&ageInDays!==null&&ageInDays>=7);
+  const delBtn=document.getElementById("btn-delete-ticket");
+  delBtn.style.display=canDelete?"flex":"none";
+  delBtn.className="btn-delete"+(isAdmin?" btn-delete-admin":"");
+  if(ageInDays!==null){
+    const d=document.getElementById("vw-days");
+    if(!isOwner||ageInDays>=7||isAdmin)d.textContent=ageInDays===0?"Hoje":ageInDays===1?"1 dia":ageInDays+" dias";
+    else d.textContent=`Deletável em ${7-ageInDays}d`;
+    d.style.display="inline";
+  }else{document.getElementById("vw-days").style.display="none";}
+
+  // Reset tabs
+  switchModalTab("details",document.querySelector(".mtab"));
+  loadAttachments(id);
   document.getElementById("modal-view").classList.add("open");
 };
 
@@ -724,6 +817,124 @@ document.addEventListener("keydown",e=>{
   if(e.key==="Enter"&&document.getElementById("tab-login").style.display!=="none")doLogin();
   if(e.key==="Escape")document.querySelectorAll(".moverlay.open").forEach(m=>m.classList.remove("open"));
 });
+
+// ─── DELETE TICKET ──────────────────────────────────────────────────────────
+window.deleteTicket=async()=>{
+  if(!vTicketId)return;
+  const t=tickets.find(x=>x.id===vTicketId);if(!t)return;
+  const isAdmin=cu?.email?.toLowerCase()===ADMIN_EMAIL.toLowerCase();
+  const isOwner=t.userId===cu?.uid;
+  const createdMs=t.createdAt?.toDate?t.createdAt.toDate().getTime():null;
+  const ageInDays=createdMs?Math.floor((Date.now()-createdMs)/86400000):0;
+  if(!isAdmin&&(!isOwner||ageInDays<7)){showToast("Você não pode apagar este chamado.",false);return;}
+  if(!confirm(`Apagar o chamado "${t.title}"? Esta ação não pode ser desfeita.`))return;
+  try{
+    // Delete all attachments from storage
+    try{
+      const listRef=ref(storage,`tickets/${vTicketId}`);
+      const res=await listAll(listRef);
+      await Promise.all(res.items.map(item=>deleteObject(item)));
+    }catch(e){}
+    await deleteDoc(doc(db,"tickets",vTicketId));
+    closeModal("modal-view");
+    showToast("Chamado excluído com sucesso.");
+  }catch(e){showToast("Erro ao excluir chamado.",false);}
+};
+
+// ─── MODAL TABS ──────────────────────────────────────────────────────────────
+window.switchModalTab=(tab,el)=>{
+  document.querySelectorAll(".mtab").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".mtab-content").forEach(c=>c.classList.remove("active"));
+  if(el)el.classList.add("active");
+  else document.querySelector(`.mtab:nth-child(${tab==="details"?1:2})`).classList.add("active");
+  document.getElementById(`tab-${tab}`).classList.add("active");
+};
+
+// ─── ATTACHMENTS ─────────────────────────────────────────────────────────────
+function getExtClass(name){
+  const ext=(name||"").split(".").pop().toLowerCase();
+  if(ext==="pdf")return"pdf";
+  if(["jpg","jpeg","png","gif","webp","svg","bmp"].includes(ext))return"img";
+  if(["doc","docx"].includes(ext))return"doc";
+  if(["xls","xlsx"].includes(ext))return"xls";
+  return"other";
+}
+function fmtSize(bytes){
+  if(bytes<1024)return bytes+"B";
+  if(bytes<1048576)return(bytes/1024).toFixed(1)+"KB";
+  return(bytes/1048576).toFixed(1)+"MB";
+}
+
+window.loadAttachments=async(ticketId)=>{
+  const list=document.getElementById("attach-list");
+  const badge=document.getElementById("attach-count-badge");
+  list.innerHTML=`<div style="text-align:center;padding:1rem;color:var(--muted);font-size:0.82rem" id="attach-empty">Carregando...</div>`;
+  try{
+    const listRef=ref(storage,`tickets/${ticketId}`);
+    const res=await listAll(listRef);
+    if(!res.items.length){
+      list.innerHTML=`<div style="text-align:center;padding:1rem;color:var(--muted);font-size:0.82rem" id="attach-empty">Nenhum anexo ainda</div>`;
+      badge.textContent="0";return;
+    }
+    badge.textContent=res.items.length;
+    const items=await Promise.all(res.items.map(async item=>{
+      const url=await getDownloadURL(item);
+      const meta=await item.getMetadata?.().catch(()=>({size:0}));
+      return{name:item.name,url,size:meta?.size||0,fullPath:item.fullPath};
+    }));
+    list.innerHTML=items.map(it=>{
+      const ext=getExtClass(it.name);
+      const extLabel=it.name.split(".").pop().toUpperCase();
+      return`<div class="attach-item">
+        <div class="attach-ext ${ext}">${extLabel.slice(0,4)}</div>
+        <div class="attach-name" title="${esc(it.name)}">${esc(it.name)}</div>
+        <div class="attach-size">${fmtSize(it.size)}</div>
+        <a class="attach-dl" href="${it.url}" target="_blank" download="${esc(it.name)}">⬇ Baixar</a>
+        <button class="attach-del" onclick="deleteAttachment('${esc(it.fullPath)}','${ticketId}')" title="Remover">✕</button>
+      </div>`;
+    }).join("");
+  }catch(e){
+    list.innerHTML=`<div style="text-align:center;padding:1rem;color:var(--muted);font-size:0.82rem">Erro ao carregar anexos.</div>`;
+    badge.textContent="?";
+  }
+};
+
+window.deleteAttachment=async(fullPath,ticketId)=>{
+  if(!confirm("Remover este anexo?"))return;
+  try{
+    await deleteObject(ref(storage,fullPath));
+    showToast("Anexo removido.");
+    loadAttachments(ticketId);
+  }catch(e){showToast("Erro ao remover anexo.",false);}
+};
+
+async function uploadFile(file){
+  if(!vTicketId)return;
+  const upEl=document.getElementById("attach-uploading");
+  upEl.style.display="flex";
+  try{
+    const path=`tickets/${vTicketId}/${Date.now()}_${file.name}`;
+    const storageRef=ref(storage,path);
+    await uploadBytes(storageRef,file);
+    showToast("Arquivo enviado!");
+    loadAttachments(vTicketId);
+  }catch(e){showToast("Erro ao enviar arquivo.",false);}
+  upEl.style.display="none";
+}
+
+window.handleFileSelect=async(e)=>{
+  const files=[...e.target.files];
+  for(const f of files)await uploadFile(f);
+  e.target.value="";
+};
+window.handleDragOver=(e)=>{e.preventDefault();document.getElementById("attach-drop-zone").classList.add("drag");};
+window.handleDragLeave=()=>{document.getElementById("attach-drop-zone").classList.remove("drag");};
+window.handleDrop=async(e)=>{
+  e.preventDefault();
+  document.getElementById("attach-drop-zone").classList.remove("drag");
+  const files=[...e.dataTransfer.files];
+  for(const f of files)await uploadFile(f);
+};
 </script>
 </body>
 </html>
