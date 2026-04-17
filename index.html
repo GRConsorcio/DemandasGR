@@ -689,6 +689,7 @@ function showApp(){
   document.getElementById("auth-screen").style.display="none";
   document.getElementById("app-screen").style.display="block";
   requestNotifPermission();
+  initSoundButton();
   const name=cp?.name||cu.email,dept=cp?.dept||"–",cargo=cp?.cargo||"–",i=ini(name);
   ["sb-av","tb-av","p-av"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=i;});
   document.getElementById("sb-name").textContent=name;
@@ -910,17 +911,28 @@ window.deleteTicket=async()=>{
   const isOwner=t.userId===cu?.uid;
   if(!isAdmin&&!isOwner){showToast("Você não pode apagar este chamado.",false);return;}
   if(!confirm(`Apagar o chamado "${t.title}"? Esta ação não pode ser desfeita.`))return;
+  const idToDelete=vTicketId;
+  // Fecha o modal imediatamente
+  closeModal("modal-view");
+  vTicketId=null;
   try{
-    // Delete all attachments from storage
+    // Tenta remover anexos (ignora erros de storage)
     try{
-      const listRef=ref(storage,`tickets/${vTicketId}`);
+      const listRef=ref(storage,`tickets/${idToDelete}`);
       const res=await listAll(listRef);
-      await Promise.all(res.items.map(item=>deleteObject(item)));
-    }catch(e){}
-    await deleteDoc(doc(db,"tickets",vTicketId));
-    closeModal("modal-view");
+      if(res.items.length>0){
+        await Promise.all(res.items.map(item=>deleteObject(item)));
+      }
+    }catch(storageErr){}
+    // Remove o documento do Firestore
+    await deleteDoc(doc(db,"tickets",idToDelete));
+    // Remove localmente e re-renderiza sem esperar o snapshot
+    tickets=tickets.filter(x=>x.id!==idToDelete);
+    updateStats();updateBadges();renderTickets();
     showToast("Chamado excluído com sucesso.");
-  }catch(e){showToast("Erro ao excluir chamado.",false);}
+  }catch(e){
+    showToast("Erro ao excluir chamado: "+(e.message||e.code),false);
+  }
 };
 
 // ─── MODAL TABS ──────────────────────────────────────────────────────────────
@@ -1039,13 +1051,12 @@ function requestNotifPermission(){
 }
 
 // ─── SOUND NOTIFICATIONS ──────────────────────────────────────────────────────
-let soundEnabled=false;
+let soundEnabled=true;
 
 function playNotifSound(){
   if(!soundEnabled)return;
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    // Bell-like chime: two notes
     const times=[[0,880,0.18],[0.18,660,0.22]];
     times.forEach(([when,freq,dur])=>{
       const osc=ctx.createOscillator();
@@ -1060,6 +1071,13 @@ function playNotifSound(){
   }catch(e){}
 }
 
+function initSoundButton(){
+  const btn=document.getElementById("sound-toggle-btn");
+  const lbl=document.getElementById("sound-toggle-label");
+  if(btn){btn.classList.add("active");}
+  if(lbl){lbl.textContent="Som: On";}
+}
+
 window.toggleSound=()=>{
   soundEnabled=!soundEnabled;
   const btn=document.getElementById("sound-toggle-btn");
@@ -1067,7 +1085,6 @@ window.toggleSound=()=>{
   btn.classList.toggle("active",soundEnabled);
   lbl.textContent=soundEnabled?"Som: On":"Som: Off";
   if(soundEnabled){
-    // Play a test sound to confirm
     playNotifSound();
     showToast("🔔 Notificação sonora ativada!");
   }else{
