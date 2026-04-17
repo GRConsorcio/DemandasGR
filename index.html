@@ -557,11 +557,11 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
 
       <!-- TAB: ATTACHMENTS -->
       <div class="mtab-content" id="tab-attachments">
-        <div class="attach-zone" id="attach-drop-zone" onclick="document.getElementById('attach-file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+        <div class="attach-zone" id="attach-drop-zone">
           <div class="attach-ico">📎</div>
           <div class="attach-hint">Clique ou arraste arquivos aqui<br><b>PDF, imagens, Word, Excel</b> e outros</div>
         </div>
-        <input type="file" id="attach-file-input" style="display:none" multiple accept="*/*" onchange="handleFileSelect(event)"/>
+        <input type="file" id="attach-file-input" style="display:none" multiple accept="*/*"/>
         <div id="attach-uploading" class="attach-uploading" style="display:none">
           <div class="spinner"></div> Enviando arquivo...
         </div>
@@ -1130,19 +1130,28 @@ window.saveProfile=async()=>{
   }
 };
 
-window.handleFileSelect=async(e)=>{
-  const files=[...e.target.files];
-  for(const f of files)await uploadFile(f);
-  e.target.value="";
-};
-window.handleDragOver=(e)=>{e.preventDefault();document.getElementById("attach-drop-zone").classList.add("drag");};
-window.handleDragLeave=()=>{document.getElementById("attach-drop-zone").classList.remove("drag");};
-window.handleDrop=async(e)=>{
+// ─── FILE UPLOAD HANDLERS (via addEventListener, não onchange/onclick) ────────
+document.getElementById("attach-drop-zone").addEventListener("click",()=>{
+  document.getElementById("attach-file-input").click();
+});
+document.getElementById("attach-drop-zone").addEventListener("dragover",e=>{
+  e.preventDefault();
+  document.getElementById("attach-drop-zone").classList.add("drag");
+});
+document.getElementById("attach-drop-zone").addEventListener("dragleave",()=>{
+  document.getElementById("attach-drop-zone").classList.remove("drag");
+});
+document.getElementById("attach-drop-zone").addEventListener("drop",async e=>{
   e.preventDefault();
   document.getElementById("attach-drop-zone").classList.remove("drag");
   const files=[...e.dataTransfer.files];
   for(const f of files)await uploadFile(f);
-};
+});
+document.getElementById("attach-file-input").addEventListener("change",async e=>{
+  const files=[...e.target.files];
+  for(const f of files)await uploadFile(f);
+  e.target.value="";
+});
 </script>
 </body>
 </html>
