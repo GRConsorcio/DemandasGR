@@ -239,6 +239,57 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
 .upload-progress-text{font-size:0.75rem;color:var(--muted2);display:flex;justify-content:space-between;}
 .days-badge{font-size:0.65rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:2px 7px;border-radius:20px;white-space:nowrap;}
 
+/* ── RESPOSTAS / THREAD ───────────────────────────────────────────────── */
+.replies-section{margin-top:0.5rem;}
+.replies-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;}
+.replies-title{font-size:0.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:0.05em;display:flex;align-items:center;gap:6px;}
+.replies-count{background:var(--surface2);border:1px solid var(--border);color:var(--gold2);font-size:0.62rem;font-weight:700;padding:1px 6px;border-radius:20px;}
+.reply-thread{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.85rem;max-height:320px;overflow-y:auto;padding-right:2px;}
+.reply-thread::-webkit-scrollbar{width:3px;}
+.reply-thread::-webkit-scrollbar-thumb{background:var(--gold3);border-radius:3px;}
+.reply-bubble{display:flex;gap:0.6rem;animation:replyIn 0.2s ease;}
+@keyframes replyIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.reply-bubble.mine{flex-direction:row-reverse;}
+.reply-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold3),var(--gold));display:grid;place-items:center;font-size:0.6rem;font-weight:700;color:#0a0a0a;flex-shrink:0;border:1px solid var(--border2);align-self:flex-start;margin-top:2px;}
+.reply-av.other{background:linear-gradient(135deg,#2a2a3a,#3a3a4a);color:var(--muted2);}
+.reply-body{max-width:82%;display:flex;flex-direction:column;gap:3px;}
+.reply-bubble.mine .reply-body{align-items:flex-end;}
+.reply-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.reply-bubble.mine .reply-meta{flex-direction:row-reverse;}
+.reply-name{font-size:0.68rem;font-weight:600;color:var(--gold2);}
+.reply-time{font-size:0.62rem;color:var(--muted);font-family:"JetBrains Mono",monospace;}
+.reply-tag{font-size:0.58rem;padding:1px 5px;border-radius:10px;font-weight:600;letter-spacing:0.03em;}
+.reply-tag.admin{background:rgba(212,175,55,0.15);color:var(--gold2);}
+.reply-tag.system{background:rgba(192,132,252,0.12);color:#c084fc;}
+.reply-content{background:var(--surface2);border:1px solid var(--border);border-radius:10px;border-top-left-radius:3px;padding:0.55rem 0.8rem;font-size:0.83rem;line-height:1.55;color:var(--text);word-break:break-word;}
+.reply-bubble.mine .reply-content{background:rgba(212,175,55,0.08);border-color:rgba(212,175,55,0.2);border-top-right-radius:3px;border-top-left-radius:10px;}
+.reply-content.system-msg{background:rgba(192,132,252,0.06);border-color:rgba(192,132,252,0.2);font-size:0.77rem;color:var(--muted2);font-style:italic;}
+.reply-del{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:0.72rem;padding:0 3px;transition:color 0.15s;align-self:center;}
+.reply-del:hover{color:var(--red);}
+.reply-input-wrap{display:flex;gap:0.5rem;align-items:flex-end;}
+.reply-input-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold3),var(--gold));display:grid;place-items:center;font-size:0.6rem;font-weight:700;color:#0a0a0a;flex-shrink:0;border:1px solid var(--border2);}
+.reply-input-box{flex:1;position:relative;}
+.reply-input-box textarea{width:100%;padding:0.55rem 2.8rem 0.55rem 0.85rem;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-family:"Inter",sans-serif;font-size:0.84rem;outline:none;resize:none;line-height:1.4;min-height:40px;max-height:120px;overflow-y:auto;transition:border-color 0.2s;}
+.reply-input-box textarea:focus{border-color:var(--gold3);}
+.reply-input-box textarea::placeholder{color:var(--muted);}
+.reply-send-btn{position:absolute;right:8px;bottom:8px;width:26px;height:26px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;display:grid;place-items:center;transition:all 0.18s;flex-shrink:0;}
+.reply-send-btn:hover{background:var(--gold2);transform:scale(1.08);}
+.reply-send-btn:disabled{background:var(--surface3);cursor:not-allowed;transform:none;}
+.reply-send-btn svg{width:13px;height:13px;}
+.reply-empty{text-align:center;padding:1.2rem 0.5rem;color:var(--muted);font-size:0.8rem;}
+.reply-empty-ico{font-size:1.4rem;margin-bottom:4px;}
+/* Notif badge na aba de respostas */
+.reply-notif-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-left:4px;vertical-align:middle;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.8)}}
+/* Banner de nova resposta */
+#reply-banner{position:fixed;bottom:5rem;right:1.2rem;z-index:9998;background:var(--surface);border:1px solid var(--gold3);border-radius:var(--radius-lg);padding:0.75rem 1rem;max-width:300px;display:none;animation:slideUpIn 0.3s ease;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
+@keyframes slideUpIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.rb-header{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.rb-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.rb-title{font-size:0.72rem;font-weight:600;color:var(--gold2);}
+.rb-msg{font-size:0.78rem;color:var(--text);line-height:1.4;margin-bottom:6px;}
+.rb-sub{font-size:0.68rem;color:var(--muted);}
+.rb-close{position:absolute;top:6px;right:8px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;line-height:1;}
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:680px){
   .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:30;transform:translateX(-100%);}
@@ -491,7 +542,8 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
     <div class="mbody" style="padding-bottom:0.5rem">
       <div class="mtabs">
         <button class="mtab active" onclick="switchModalTab('details',this)">📋 Detalhes</button>
-        <button class="mtab" onclick="switchModalTab('attachments',this)">📎 Anexos <span id="attach-count-badge" style="font-size:0.65rem;background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:10px;margin-left:4px">0</span></button>
+        <button class="mtab" onclick="switchModalTab('replies',this)" id="tab-replies-btn">💬 Respostas <span id="attach-count-badge" style="font-size:0.65rem;background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:10px;margin-left:4px">0</span></button>
+        <button class="mtab" onclick="switchModalTab('attachments',this)">📎 Anexos <span id="attach-count-badge-2" style="font-size:0.65rem;background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:10px;margin-left:4px">0</span></button>
       </div>
 
       <div class="mtab-content active" id="tab-details">
@@ -534,6 +586,35 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
         </div>
       </div>
 
+      <div class="mtab-content" id="tab-replies">
+        <div class="replies-section">
+          <div class="replies-header">
+            <div class="replies-title">
+              💬 Histórico de respostas
+              <span class="replies-count" id="replies-count-label">0</span>
+            </div>
+          </div>
+          <div class="reply-thread" id="reply-thread">
+            <div class="reply-empty" id="reply-empty">
+              <div class="reply-empty-ico">💬</div>
+              <div>Nenhuma resposta ainda</div>
+              <div style="font-size:0.72rem;color:var(--muted);margin-top:3px">Seja o primeiro a responder!</div>
+            </div>
+          </div>
+          <div class="reply-input-wrap">
+            <div class="reply-input-av" id="reply-input-av">?</div>
+            <div class="reply-input-box">
+              <textarea id="reply-textarea" placeholder="Escreva uma resposta..." rows="1"
+                oninput="autoResizeReply(this)"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendReply();}"></textarea>
+              <button class="reply-send-btn" onclick="sendReply()" id="reply-send-btn" title="Enviar (Enter)">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="mtab-content" id="tab-attachments">
         <div class="attach-zone" id="attach-drop-zone">
           <div class="attach-ico">📎</div>
@@ -553,6 +634,13 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
     </div>
   </div>
+</div>
+
+<div id="reply-banner">
+  <button class="rb-close" onclick="document.getElementById('reply-banner').style.display='none'">✕</button>
+  <div class="rb-header"><div class="rb-dot"></div><div class="rb-title">Nova resposta</div></div>
+  <div class="rb-msg" id="rb-msg">–</div>
+  <div class="rb-sub" id="rb-sub">–</div>
 </div>
 
 <div id="toast"></div>
@@ -591,7 +679,7 @@ body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);min-h
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updatePassword as fbUpdatePassword}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import{getFirestore,collection,addDoc,doc,updateDoc,deleteDoc,query,orderBy,onSnapshot,serverTimestamp,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getFirestore,collection,addDoc,doc,updateDoc,deleteDoc,query,orderBy,onSnapshot,serverTimestamp,getDoc,setDoc,where}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({apiKey:"AIzaSyAjcAgeRXZ83Xuq4-A5JzJy6U7ytBGwK-c",authDomain:"chamadosgr.firebaseapp.com",projectId:"chamadosgr",storageBucket:"chamadosgr.firebasestorage.app",messagingSenderId:"189388794024",appId:"1:189388794024:web:77cb54fcba7a7d7b3bba9d"});
 const auth=getAuth(app),db=getFirestore(app);
@@ -776,7 +864,10 @@ window.goToPerfil=()=>{const btns=document.querySelectorAll(".nav-item");let b=n
 window.toggleSidebar=()=>{document.getElementById("sidebar").classList.toggle("open");document.getElementById("sb-overlay").classList.toggle("open");};
 window.closeSidebar=()=>{document.getElementById("sidebar").classList.remove("open");document.getElementById("sb-overlay").classList.remove("open");};
 window.openNewModal=()=>{document.getElementById("modal-new").classList.add("open");if(cp?.dept)document.getElementById("new-dept").value=cp.dept;};
-window.closeModal=id=>document.getElementById(id).classList.remove("open");
+window.closeModal=id=>{
+  document.getElementById(id).classList.remove("open");
+  if(id==="modal-view"&&repliesUnsub){try{repliesUnsub();}catch(e){}repliesUnsub=null;}
+};
 
 window.submitTicket=async()=>{
   const dept=document.getElementById("new-dept").value;
@@ -829,6 +920,9 @@ window.viewTicket=id=>{
   refreshModalData(t);
   switchModalTab("details",document.querySelector(".mtab"));
   loadAttachments(id);
+  // Carrega respostas e atualiza avatar do input
+  loadReplies(id);
+  setTimeout(()=>{const av=document.getElementById("reply-input-av");if(av)av.textContent=ini(cp?.name||cu?.email||"?");},30);
   document.getElementById("modal-view").classList.add("open");
 };
 
@@ -881,8 +975,13 @@ window.switchModalTab=(tab,el)=>{
   document.querySelectorAll(".mtab").forEach(b=>b.classList.remove("active"));
   document.querySelectorAll(".mtab-content").forEach(c=>c.classList.remove("active"));
   if(el)el.classList.add("active");
-  else{const tabs=document.querySelectorAll(".mtab");const idx=tab==="details"?0:1;if(tabs[idx])tabs[idx].classList.add("active");}
-  document.getElementById(`tab-${tab}`).classList.add("active");
+  else{const tabs=document.querySelectorAll(".mtab");const idx=tab==="details"?0:tab==="replies"?1:2;if(tabs[idx])tabs[idx].classList.add("active");}
+  document.getElementById(`tab-${tab}`)?.classList.add("active");
+  if(tab==="replies"){
+    const dot=document.getElementById("reply-notif-dot");if(dot)dot.remove();
+    const av=document.getElementById("reply-input-av");if(av)av.textContent=ini(cp?.name||cu?.email||"?");
+    const ta=document.getElementById("reply-textarea");if(ta){ta.style.height="";ta.focus();}
+  }
 };
 
 // ── CLOUDINARY UPLOAD ─────────────────────────────────────────────────────────
@@ -908,7 +1007,7 @@ window.loadAttachments=att=>{
   const ticketId=typeof att==="string"?att:vTicketId;
   const t=tickets.find(x=>x.id===ticketId);
   const list=document.getElementById("attach-list");
-  const badge=document.getElementById("attach-count-badge");
+  const badge=document.getElementById("attach-count-badge-2");
   const atts=(t?.attachments)||[];
   // Filtra expirados (>24h)
   const now=Date.now();
@@ -1092,6 +1191,204 @@ window.saveProfile=async()=>{
     else err.textContent="Erro: "+(e.message||e.code);
   }
 };
+
+// ── SISTEMA DE RESPOSTAS ──────────────────────────────────────────────────────
+let repliesUnsub = null;
+let lastKnownReplyIds = new Set();
+let replyFirstLoad = true;
+
+function loadReplies(ticketId) {
+  // Para listener anterior
+  if (repliesUnsub) { try { repliesUnsub(); } catch(e){} repliesUnsub = null; }
+  lastKnownReplyIds.clear();
+  replyFirstLoad = true;
+
+  const thread   = document.getElementById("reply-thread");
+  const countLbl = document.getElementById("replies-count-label");
+  const badge    = document.getElementById("attach-count-badge");
+
+  thread.innerHTML = `<div class="loading" style="padding:1.2rem;justify-content:center"><div class="spinner"></div><span style="margin-left:8px">Carregando...</span></div>`;
+
+  try {
+    const q = query(
+      collection(db, "tickets", ticketId, "replies"),
+      orderBy("createdAt", "asc")
+    );
+
+    repliesUnsub = onSnapshot(q,
+      snap => {
+        const replies = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        if (replyFirstLoad) {
+          snap.docs.forEach(d => lastKnownReplyIds.add(d.id));
+          replyFirstLoad = false;
+        } else {
+          snap.docChanges().forEach(change => {
+            if (change.type === "added" && !lastKnownReplyIds.has(change.doc.id)) {
+              lastKnownReplyIds.add(change.doc.id);
+              const r = { id: change.doc.id, ...change.doc.data() };
+              if (r.userId !== cu?.uid) showReplyNotification(r, ticketId);
+            }
+          });
+        }
+
+        const ct = replies.length;
+        if (badge) badge.textContent = ct;
+        if (countLbl) countLbl.textContent = ct;
+        renderReplyThread(replies, ticketId);
+      },
+      err => {
+        console.error("Replies listener error:", err);
+        thread.innerHTML = `<div class="reply-empty"><div class="reply-empty-ico">⚠️</div><div>Erro ao carregar respostas</div><div style="font-size:0.72rem;color:var(--muted);margin-top:3px">${err.code||err.message}</div></div>`;
+      }
+    );
+  } catch(e) {
+    console.error("loadReplies error:", e);
+    thread.innerHTML = `<div class="reply-empty"><div class="reply-empty-ico">⚠️</div><div>Erro: ${e.message}</div></div>`;
+  }
+}
+
+function renderReplyThread(replies, ticketId) {
+  const thread = document.getElementById("reply-thread");
+  const wasAtBottom = thread.scrollHeight - thread.scrollTop <= thread.clientHeight + 80;
+
+  if (!replies.length) {
+    thread.innerHTML = `<div class="reply-empty" id="reply-empty">
+      <div class="reply-empty-ico">💬</div>
+      <div>Nenhuma resposta ainda</div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:3px">Seja o primeiro a responder!</div>
+    </div>`;
+    return;
+  }
+
+  thread.innerHTML = replies.map(r => {
+    const mine    = r.userId === cu?.uid;
+    const adm     = ADMIN_EMAILS.includes((r.userEmail||"").toLowerCase());
+    const isSys   = r.type === "system";
+    const initials = ini(r.userName || "?");
+    const canDel  = mine || ADMIN_EMAILS.includes((cu?.email||"").toLowerCase());
+    const safeText = (r.text||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
+
+    return `<div class="reply-bubble${mine?" mine":""}">
+      <div class="reply-av${mine?"":" other"}">${initials}</div>
+      <div class="reply-body">
+        <div class="reply-meta">
+          <span class="reply-name">${esc(r.userName||"Usuário")}</span>
+          ${adm?`<span class="reply-tag admin">Admin</span>`:""}
+          ${isSys?`<span class="reply-tag system">Sistema</span>`:""}
+          <span class="reply-time">${fmt(r.createdAt)}</span>
+        </div>
+        <div class="reply-content${isSys?" system-msg":""}">${safeText}</div>
+      </div>
+      ${canDel?`<button class="reply-del" onclick="deleteReply('${ticketId}','${r.id}')" title="Excluir">✕</button>`:""}
+    </div>`;
+  }).join("");
+
+  if (wasAtBottom) thread.scrollTop = thread.scrollHeight;
+}
+
+// Envia resposta
+window.sendReply = async () => {
+  const tid = vTicketId;
+  if (!tid) { showToast("Nenhum chamado selecionado.", false); return; }
+  const ta  = document.getElementById("reply-textarea");
+  const text = (ta.value||"").trim();
+  if (!text) return;
+
+  const btn = document.getElementById("reply-send-btn");
+  btn.disabled = true;
+  ta.style.opacity = "0.6";
+
+  try {
+    await addDoc(collection(db, "tickets", tid, "replies"), {
+      text,
+      userId:   cu.uid,
+      userEmail: cu.email,
+      userName: cp?.name || cu.email,
+      userDept: cp?.dept || "–",
+      createdAt: serverTimestamp(),
+      type: "user"
+    });
+
+    ta.value = "";
+    ta.style.height = "";
+    ta.style.opacity = "1";
+
+    // Admin responde → muda status para "em andamento" se aberto
+    if (ADMIN_EMAILS.includes((cu?.email||"").toLowerCase())) {
+      const t = tickets.find(x => x.id === tid);
+      if (t && t.status === "aberto") {
+        await updateDoc(doc(db,"tickets",tid), { status:"em andamento", updatedAt:serverTimestamp() });
+        showToast("Resposta enviada — Em andamento!");
+      } else {
+        showToast("Resposta enviada!");
+      }
+    } else {
+      showToast("Resposta enviada!");
+    }
+  } catch(e) {
+    console.error("sendReply error:", e);
+    ta.style.opacity = "1";
+    showToast("Erro ao enviar: " + (e.code||e.message||"tente novamente"), false);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+// Exclui resposta
+window.deleteReply = async (ticketId, replyId) => {
+  try {
+    await deleteDoc(doc(db, "tickets", ticketId, "replies", replyId));
+    showToast("Resposta excluída.");
+  } catch(e) {
+    showToast("Erro ao excluir: " + (e.code||e.message), false);
+  }
+};
+
+// Auto-resize textarea
+window.autoResizeReply = ta => {
+  ta.style.height = "auto";
+  ta.style.height = Math.min(ta.scrollHeight, 120) + "px";
+};
+
+// Notificação de nova resposta
+function showReplyNotification(reply, ticketId) {
+  const ticket = tickets.find(x => x.id === ticketId);
+  const preview = (reply.text||"").slice(0,80) + (reply.text?.length > 80 ? "…" : "");
+
+  // Banner flutuante inferior
+  const rb = document.getElementById("reply-banner");
+  if (rb) {
+    document.getElementById("rb-msg").textContent = `"${preview}"`;
+    document.getElementById("rb-sub").textContent = `${reply.userName||"Alguém"} · ${ticket?.title||"Chamado"}`;
+    rb.style.display = "block";
+    clearTimeout(rb._t);
+    rb._t = setTimeout(() => rb.style.display = "none", 7000);
+  }
+
+  // Ponto vermelho pulsante na aba Respostas
+  const repliesBtn = document.getElementById("tab-replies-btn");
+  if (repliesBtn && !document.getElementById("reply-notif-dot")) {
+    const dot = document.createElement("span");
+    dot.id = "reply-notif-dot"; dot.className = "reply-notif-dot";
+    repliesBtn.appendChild(dot);
+  }
+
+  // Banner topo
+  const nb = document.getElementById("notif-banner");
+  const nt = document.getElementById("notif-text");
+  if (nb && nt) {
+    nt.textContent = `💬 ${reply.userName||"Alguém"} respondeu: "${preview}"`;
+    nb.style.display = "flex";
+    clearTimeout(nb._t);
+    nb._t = setTimeout(() => nb.style.display = "none", 6000);
+  }
+
+  playNotifSound();
+  if (Notification.permission === "granted") {
+    try { new Notification("💬 Nova resposta — GR Consórcio", { body: `${reply.userName}: ${preview}` }); } catch(e){}
+  }
+}
 
 // ── MISC ──────────────────────────────────────────────────────────────────────
 document.querySelectorAll(".moverlay").forEach(el=>el.addEventListener("click",e=>{if(e.target===el)el.classList.remove("open");}));
